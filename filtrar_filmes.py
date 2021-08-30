@@ -59,8 +59,8 @@ def addMovie(movies, new_movie):
             break
     
     movies.insert(index, new_movie)
-    if len(movies) > 10:
-        movies = movies[:10]
+    if len(movies) > 5:
+        movies = movies[:5]
     return movies
 
 
@@ -73,11 +73,11 @@ file.close()
 file = open("base de conhecimento.json", "w")
 
 
-final = {"drama":{"newer": {"pt": {"low budget":[], "high budget":[]}, "en":{"low budget":[], "high budget":[]}}, "older": {"pt": {"low budget":[], "high budget":[]}, "en":{"low budget":[], "high budget":[]}}}, 
-"animation":{"newer": {"pt": {"low budget":[], "high budget":[]}, "en":{"low budget":[], "high budget":[]}}, "older": {"pt": {"low budget":[], "high budget":[]}, "en":{"low budget":[], "high budget":[]}}}, 
-"horror":{"newer": {"pt": {"low budget":[], "high budget":[]}, "en":{"low budget":[], "high budget":[]}}, "older": {"pt": {"low budget":[], "high budget":[]}, "en":{"low budget":[], "high budget":[]}}}, 
-"romance":{"newer": {"pt": {"low budget":[], "high budget":[]}, "en":{"low budget":[], "high budget":[]}}, "older": {"pt": {"low budget":[], "high budget":[]}, "en":{"low budget":[], "high budget":[]}}}, 
-"comedy":{"newer": {"pt": {"low budget":[], "high budget":[]}, "en":{"low budget":[], "high budget":[]}}, "older": {"pt": {"low budget":[], "high budget":[]}, "en":{"low budget":[], "high budget":[]}}}}
+final = {"drama":{"newer": {"pt": {"low budget":{}, "high budget":{}}, "en":{"low budget":{}, "high budget":{}}}, "older": {"pt": {"low budget":{}, "high budget":{}}, "en":{"low budget":{}, "high budget":{}}}}, 
+"animation":{"newer": {"pt": {"low budget":{}, "high budget":{}}, "en":{"low budget":{}, "high budget":{}}}, "older": {"pt": {"low budget":{}, "high budget":{}}, "en":{"low budget":{}, "high budget":{}}}}, 
+"horror":{"newer": {"pt": {"low budget":{}, "high budget":{}}, "en":{"low budget":{}, "high budget":{}}}, "older": {"pt": {"low budget":{}, "high budget":{}}, "en":{"low budget":{}, "high budget":{}}}}, 
+"romance":{"newer": {"pt": {"low budget":{}, "high budget":{}}, "en":{"low budget":{}, "high budget":{}}}, "older": {"pt": {"low budget":{}, "high budget":{}}, "en":{"low budget":{}, "high budget":{}}}}, 
+"comedy":{"newer": {"pt": {"low budget":{}, "high budget":{}}, "en":{"low budget":{}, "high budget":{}}}, "older": {"pt": {"low budget":{}, "high budget":{}}, "en":{"low budget":{}, "high budget":{}}}}}
 
 
 
@@ -101,16 +101,55 @@ for x in obj["dataset"]:
     elif  x['original_language'] == 'pt':
         lang = 'pt'  
 
-    if lang != '' and realese != '' and budget != '':      
+    if lang != '' and realese != '' and budget != '':
+
         list = getGenres(x['genres'])
+        
         for genre in list:
-            movies = final[(genre['name']).lower()][realese][lang][budget]
-            final[(genre['name']).lower()][realese][lang][budget] = addMovie(movies, x)
-            print('add!')
+            #apenas genero
+            final[(genre['name']).lower()].setdefault('movies',[])
+            movies = final[(genre['name']).lower()]['movies']
+            final[(genre['name']).lower()]['movies'] = addMovie(movies, x)
+            
+            #genero e realese
+            final[(genre['name']).lower()][realese].setdefault('movies', [])
+            movies = final[(genre['name']).lower()][realese]['movies']
+            final[(genre['name']).lower()][realese]['movies'] = addMovie(movies, x)
+
+            #genero e lang
+            final[(genre['name']).lower()].setdefault(lang, {'movies': []})
+            movies = final[(genre['name']).lower()][lang]['movies']
+            final[(genre['name']).lower()][lang]['movies'] = addMovie(movies, x)
+
+            #genero e budget
+            final[(genre['name']).lower()].setdefault(budget, {'movies': []})
+            movies = final[(genre['name']).lower()][budget]['movies']
+            final[(genre['name']).lower()][budget]['movies'] = addMovie(movies, x)
+
+            #genero realese e lang
+            final[(genre['name']).lower()][realese][lang].setdefault('movies', [])
+            movies = final[(genre['name']).lower()][realese][lang]['movies']
+            final[(genre['name']).lower()][realese]['movies'] = addMovie(movies, x)
+
+            #genero realese e budget
+            final[(genre['name']).lower()][realese].setdefault(budget, {'movies': []})
+            movies = final[(genre['name']).lower()][realese][budget]['movies']
+            final[(genre['name']).lower()][realese][budget]['movies'] = addMovie(movies, x)
+
+            #genero lang e budget
+            final[(genre['name']).lower()][lang].setdefault(budget, {'movies': []})
+            movies = final[(genre['name']).lower()][lang][budget]['movies']
+            final[(genre['name']).lower()][lang][budget]['movies'] = addMovie(movies, x)
+
+
+            final[(genre['name']).lower()][realese][lang][budget].setdefault('movies', [])
+            movies = final[(genre['name']).lower()][realese][lang][budget]['movies']
+            final[(genre['name']).lower()][realese][lang][budget]['movies'] = addMovie(movies, x)
+
         
 
 
-
+print(final['horror']['newer']['pt']['low budget']['movies'])
 file.write(json.dumps(final, indent=4))
 file.close()
 
